@@ -99,6 +99,20 @@
         document.getElementById('minutes').addEventListener('input', updateCountdownDisplay);
         document.getElementById('seconds').addEventListener('input', updateCountdownDisplay);
 
+        // 实时更新计时记录
+        function updateTaskRecord() {
+            const taskName = document.getElementById('task-name').value;
+            const date = new Date().toLocaleDateString();
+            const savedRecords = JSON.parse(localStorage.getItem('timerRecords')) || {};
+            const taskRecordIndex = savedRecords[date]?.findIndex(record => record.name === taskName);
+
+            if (taskRecordIndex !== -1) {
+                savedRecords[date][taskRecordIndex].time = formatTime(seconds); // 正计时实时更新
+                localStorage.setItem('timerRecords', JSON.stringify(savedRecords));
+                displayRecords();
+            }
+        }
+
         // 开始正计时
         function startTimer() {
             if (!isCounting) {
@@ -107,6 +121,7 @@
                 timer = setInterval(() => {
                     seconds++;
                     document.getElementById('timer').innerText = formatTime(seconds);
+                    updateTaskRecord(); // 实时更新记录
                 }, 1000);
                 isCounting = true;
             }
@@ -127,94 +142,4 @@
                 if (!isCounting) {
                     timer = setInterval(() => {
                         countdownSeconds--;
-                        document.getElementById('timer').innerText = formatTime(countdownSeconds);
-                        if (countdownSeconds <= 0) {
-                            clearInterval(timer);
-                            alert('倒计时结束！');
-                        }
-                    }, 1000);
-                    isCounting = true;
-                }
-            } else {
-                alert('请输入有效的倒计时时间');
-            }
-        }
-
-        // 暂停计时
-        function pauseTimer() {
-            clearInterval(timer);
-            isCounting = false;
-        }
-
-        // 重置计时
-        function resetTimer() {
-            clearInterval(timer);
-            isCounting = false;
-            seconds = 0;
-            countdownSeconds = 0;
-            inputCountdownSeconds = 0;
-            document.getElementById('timer').innerText = "00:00:00";
-        }
-
-        // 保存计时记录
-        function saveTask(type, timeRecorded) {
-            const taskName = document.getElementById('task-name').value;
-            if (!taskName) {
-                alert('请输入计时名称');
-                return;
-            }
-
-            const date = new Date();
-            const dateString = date.toLocaleDateString();
-
-            const taskRecord = {
-                name: taskName,
-                time: timeRecorded,
-                date: dateString,
-                type: type
-            };
-
-            const savedRecords = JSON.parse(localStorage.getItem('timerRecords')) || {};
-            if (!savedRecords[dateString]) {
-                savedRecords[dateString] = [];
-            }
-            savedRecords[dateString].push(taskRecord);
-            localStorage.setItem('timerRecords', JSON.stringify(savedRecords));
-
-            displayRecords();
-        }
-
-        // 显示记录
-        function displayRecords() {
-            const savedRecords = JSON.parse(localStorage.getItem('timerRecords')) || {};
-            const today = new Date().toLocaleDateString();
-            const records = savedRecords[today] || [];
-            const recordList = document.getElementById('record-list');
-            recordList.innerHTML = '<h2>今日计时记录</h2>';
-            records.forEach(record => {
-                const recordItem = document.createElement('div');
-                recordItem.classList.add('record-item');
-                recordItem.innerText = `${record.name} (${record.type}): ${record.time}`;
-                recordList.appendChild(recordItem);
-            });
-        }
-
-        // 清除今日的计时记录
-        function clearRecords() {
-            const today = new Date().toLocaleDateString();
-            const savedRecords = JSON.parse(localStorage.getItem('timerRecords')) || {};
-            delete savedRecords[today];
-            localStorage.setItem('timerRecords', JSON.stringify(savedRecords));
-            displayRecords();
-        }
-
-        document.getElementById('start').addEventListener('click', startTimer);
-        document.getElementById('start-countdown').addEventListener('click', startCountdown);
-        document.getElementById('pause').addEventListener('click', pauseTimer);
-        document.getElementById('reset').addEventListener('click', resetTimer);
-        document.getElementById('clear-records').addEventListener('click', clearRecords);
-
-        displayRecords();
-    </script>
-</body>
-</html>
+                        document.getElementById('timer').
