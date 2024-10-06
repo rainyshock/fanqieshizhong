@@ -61,7 +61,7 @@
     <div>
         <input type="text" id="task-name" placeholder="计时名称" />
         <button id="save-task">保存记录</button>
-        <button id="clear-records">清除今日记录</button> <!-- 新增清除记录按钮 -->
+        <button id="clear-records">清除今日记录</button>
     </div>
     
     <!-- 显示记录 -->
@@ -84,6 +84,20 @@
             let secs = seconds % 60;
             return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
         }
+
+        // 实时更新输入框中设置的倒计时时间
+        function updateCountdownDisplay() {
+            const inputHours = parseInt(document.getElementById('hours').value) || 0;
+            const inputMinutes = parseInt(document.getElementById('minutes').value) || 0;
+            const inputSeconds = parseInt(document.getElementById('seconds').value) || 0;
+            const totalSeconds = inputHours * 3600 + inputMinutes * 60 + inputSeconds;
+            document.getElementById('timer').innerText = formatTime(totalSeconds);
+        }
+
+        // 监听输入框变化，实时更新计时器显示
+        document.getElementById('hours').addEventListener('input', updateCountdownDisplay);
+        document.getElementById('minutes').addEventListener('input', updateCountdownDisplay);
+        document.getElementById('seconds').addEventListener('input', updateCountdownDisplay);
 
         // 开始正计时
         function startTimer() {
@@ -155,7 +169,7 @@
                 name: taskName,
                 time: timeRecorded,
                 date: dateString,
-                type: isCountdown ? "倒计时" : "正计时" // 记录是正计时还是倒计时
+                type: isCountdown ? "倒计时" : "正计时"
             };
 
             const savedRecords = JSON.parse(localStorage.getItem('timerRecords')) || {};
