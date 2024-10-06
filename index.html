@@ -7,77 +7,114 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            height: 100vh;
             padding: 20px;
         }
+        .container {
+            display: flex;
+            width: 80%;
+        }
+        .timer-section {
+            flex: 1;
+            max-width: 300px;
+            margin-right: 20px;
+            padding: 10px;
+            background-color: #f7f7f7;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .record-section {
+            flex: 1;
+            max-width: 300px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 10px;
+            height: auto;
+            overflow-y: auto;
+        }
         .timer {
-            font-size: 3rem;
+            font-size: 2.5rem;
             margin: 20px 0;
         }
         .controls {
             margin: 10px 0;
         }
         button {
-            padding: 10px 20px;
+            padding: 8px 16px;
             margin: 5px;
-        }
-        .record-list {
-            margin-top: 20px;
-        }
-        .record-item {
-            margin-bottom: 10px;
+            font-size: 0.8rem;
         }
         input[type="number"] {
-            width: 50px;
+            width: 40px;
             font-size: 1.2rem;
+        }
+        input[type="text"] {
+            width: 180px;
+            font-size: 1rem;
+            padding: 5px;
+        }
+        h2 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+        .record-item {
+            margin-bottom: 5px;
+            font-size: 0.9rem;
         }
     </style>
 </head>
 <body>
-    <h1>计时器</h1>
-    
-    <!-- 倒计时时间输入框 -->
-    <div>
-        <label for="hours">小时</label>
-        <input type="number" id="hours" value="0" min="0">
-        <label for="minutes">分钟</label>
-        <input type="number" id="minutes" value="0" min="0" max="59">
-        <label for="seconds">秒</label>
-        <input type="number" id="seconds" value="0" min="0" max="59">
-    </div>
-    
-    <!-- 显示计时器 -->
-    <div id="timer" class="timer">00:00:00</div>
-    
-    <!-- 控制按钮 -->
-    <div class="controls">
-        <button id="start">开始正计时</button>
-        <button id="start-countdown">开始倒计时</button>
-        <button id="pause">暂停</button>
-        <button id="reset">重置</button>
-    </div>
-    
-    <!-- 保存任务名称 -->
-    <div>
-        <input type="text" id="task-name" placeholder="计时名称" />
-        <button id="clear-records">清除今日记录</button>
-    </div>
-    
-    <!-- 显示记录 -->
-    <div id="record-list" class="record-list">
-        <h2>今日计时记录</h2>
-        <!-- 计时记录会显示在这里 -->
+    <div class="container">
+        <div class="timer-section">
+            <h1>计时器</h1>
+            
+            <!-- 倒计时时间输入框 -->
+            <div>
+                <label for="hours">小时</label>
+                <input type="number" id="hours" value="0" min="0">
+                <label for="minutes">分钟</label>
+                <input type="number" id="minutes" value="0" min="0" max="59">
+                <label for="seconds">秒</label>
+                <input type="number" id="seconds" value="0" min="0" max="59">
+            </div>
+            
+            <!-- 显示计时器 -->
+            <div id="timer" class="timer">00:00:00</div>
+            
+            <!-- 控制按钮 -->
+            <div class="controls">
+                <button id="start">开始正计时</button>
+                <button id="start-countdown">开始倒计时</button>
+                <button id="pause">暂停</button>
+                <button id="reset">重置</button>
+            </div>
+            
+            <!-- 保存任务名称 -->
+            <div>
+                <input type="text" id="task-name" placeholder="计时名称" />
+            </div>
+        </div>
+
+        <div class="record-section">
+            <h2>今日计时记录</h2>
+            <div id="record-list" class="record-list">
+                <!-- 计时记录会显示在这里 -->
+            </div>
+            <button id="clear-records">清除今日记录</button>
+        </div>
     </div>
 
     <script>
         let timer;
         let seconds = 0;
         let countdownSeconds = 0;
-        let inputCountdownSeconds = 0; // 倒计时的初始值
+        let inputCountdownSeconds = 0;
         let isCounting = false;
         let isCountdown = false;
 
-        // 格式化时间
         function formatTime(seconds) {
             let hrs = Math.floor(seconds / 3600);
             let mins = Math.floor((seconds % 3600) / 60);
@@ -85,7 +122,6 @@
             return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
         }
 
-        // 实时更新输入框中设置的倒计时时间
         function updateCountdownDisplay() {
             const inputHours = parseInt(document.getElementById('hours').value) || 0;
             const inputMinutes = parseInt(document.getElementById('minutes').value) || 0;
@@ -94,12 +130,10 @@
             document.getElementById('timer').innerText = formatTime(totalSeconds);
         }
 
-        // 监听输入框变化，实时更新计时器显示
         document.getElementById('hours').addEventListener('input', updateCountdownDisplay);
         document.getElementById('minutes').addEventListener('input', updateCountdownDisplay);
         document.getElementById('seconds').addEventListener('input', updateCountdownDisplay);
 
-        // 实时更新计时记录
         function updateTaskRecord() {
             const taskName = document.getElementById('task-name').value;
             const date = new Date().toLocaleDateString();
@@ -107,27 +141,25 @@
             const taskRecordIndex = savedRecords[date]?.findIndex(record => record.name === taskName);
 
             if (taskRecordIndex !== -1) {
-                savedRecords[date][taskRecordIndex].time = formatTime(seconds); // 正计时实时更新
+                savedRecords[date][taskRecordIndex].time = formatTime(seconds);
                 localStorage.setItem('timerRecords', JSON.stringify(savedRecords));
                 displayRecords();
             }
         }
 
-        // 开始正计时
         function startTimer() {
             if (!isCounting) {
                 isCountdown = false;
-                saveTask("正计时", formatTime(seconds)); // 开始正计时时保存记录
+                saveTask("正计时", formatTime(seconds));
                 timer = setInterval(() => {
                     seconds++;
                     document.getElementById('timer').innerText = formatTime(seconds);
-                    updateTaskRecord(); // 实时更新记录
+                    updateTaskRecord();
                 }, 1000);
                 isCounting = true;
             }
         }
 
-        // 开始倒计时
         function startCountdown() {
             const inputHours = parseInt(document.getElementById('hours').value) || 0;
             const inputMinutes = parseInt(document.getElementById('minutes').value) || 0;
@@ -137,7 +169,7 @@
 
             if (countdownSeconds > 0) {
                 document.getElementById('timer').innerText = formatTime(countdownSeconds);
-                saveTask("倒计时", formatTime(countdownSeconds)); // 开始倒计时时保存记录
+                saveTask("倒计时", formatTime(countdownSeconds));
                 isCountdown = true;
                 if (!isCounting) {
                     timer = setInterval(() => {
@@ -155,13 +187,11 @@
             }
         }
 
-        // 暂停计时
         function pauseTimer() {
             clearInterval(timer);
             isCounting = false;
         }
 
-        // 重置计时
         function resetTimer() {
             clearInterval(timer);
             isCounting = false;
@@ -171,7 +201,6 @@
             document.getElementById('timer').innerText = "00:00:00";
         }
 
-        // 保存计时记录
         function saveTask(type, timeRecorded) {
             const taskName = document.getElementById('task-name').value;
             if (!taskName) {
@@ -199,13 +228,12 @@
             displayRecords();
         }
 
-        // 显示记录
         function displayRecords() {
             const savedRecords = JSON.parse(localStorage.getItem('timerRecords')) || {};
             const today = new Date().toLocaleDateString();
             const records = savedRecords[today] || [];
             const recordList = document.getElementById('record-list');
-            recordList.innerHTML = '<h2>今日计时记录</h2>';
+            recordList.innerHTML = '';
             records.forEach(record => {
                 const recordItem = document.createElement('div');
                 recordItem.classList.add('record-item');
@@ -214,7 +242,6 @@
             });
         }
 
-        // 清除今日的计时记录
         function clearRecords() {
             const today = new Date().toLocaleDateString();
             const savedRecords = JSON.parse(localStorage.getItem('timerRecords')) || {};
