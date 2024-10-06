@@ -7,113 +7,124 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
+            text-align: center;
+            background-color: #f7f7f7;
             padding: 20px;
         }
-        .container {
+
+        #container {
             display: flex;
             justify-content: space-between;
-            width: 800px;
+            align-items: flex-start;
+            gap: 20px; /* 控制两个部分的间距 */
+            margin: 0 auto;
+            max-width: 700px; /* 设置容器的最大宽度 */
         }
-        .timer-container, .record-container {
-            background-color: #f0f0f0;
+
+        .box {
+            background-color: #ffffff;
             border-radius: 10px;
             padding: 20px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 50%;
         }
+
         h1 {
-            font-size: 2rem;
-            margin-bottom: 10px;
-            text-align: center;
+            font-size: 24px;
+            margin-bottom: 20px;
         }
+
         .timer {
             font-size: 3rem;
             margin: 20px 0;
-            text-align: center;
         }
+
         .controls {
-            text-align: center;
             margin: 10px 0;
         }
+
         button {
             padding: 10px 20px;
-            font-size: 1rem;
-            border: 1px solid #ccc;
+            margin: 5px;
+            font-size: 14px;
+            border: none;
             border-radius: 5px;
-            background-color: #fff;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
+            background-color: #e0e0e0;
         }
+
         button:hover {
-            background-color: #007BFF;
-            color: white;
+            background-color: #d4d4d4;
         }
-        input[type="number"], input[type="text"] {
-            width: 50px;
+
+        input[type="text"], input[type="number"] {
+            width: 80px;
             padding: 8px;
-            font-size: 1rem;
-            text-align: center;
+            font-size: 14px;
             border: 1px solid #ccc;
             border-radius: 5px;
-            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
+            margin: 5px 0;
         }
-        input[type="text"] {
-            width: 100%;
-            padding: 10px;
-            margin-top: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
+
         .record-list {
             margin-top: 20px;
+            text-align: left;
         }
+
         .record-item {
             margin-bottom: 10px;
+        }
+
+        input[type="number"] {
+            width: 50px;
+            font-size: 1.2rem;
+        }
+
+        .input-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .record-list button {
+            background-color: #edf2ff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .record-list button:hover {
+            background-color: #dbe9ff;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- 计时器部分 -->
-        <div class="timer-container">
+    <div id="container">
+        <div class="box">
             <h1>计时器</h1>
-
-            <!-- 倒计时时间输入框 -->
-            <div style="text-align: center;">
-                <label for="hours">小时</label>
+            <div class="input-container">
+                <label>小时</label>
                 <input type="number" id="hours" value="0" min="0">
-                <label for="minutes">分钟</label>
+                <label>分钟</label>
                 <input type="number" id="minutes" value="0" min="0" max="59">
-                <label for="seconds">秒</label>
+                <label>秒</label>
                 <input type="number" id="seconds" value="0" min="0" max="59">
             </div>
 
-            <!-- 显示计时器 -->
             <div id="timer" class="timer">00:00:00</div>
 
-            <!-- 控制按钮 -->
             <div class="controls">
                 <button id="start">开始正计时</button>
                 <button id="start-countdown">开始倒计时</button>
                 <button id="pause">停止</button>
                 <button id="reset">重置</button>
             </div>
-
-            <!-- 保存任务名称 -->
-            <div>
-                <input type="text" id="task-name" placeholder="计时名称" />
-            </div>
+            <input type="text" id="task-name" placeholder="计时名称" />
         </div>
 
-        <!-- 计时记录部分 -->
-        <div class="record-container">
-            <h1>今日计时记录</h1>
+        <div class="box">
+            <h2>今日计时记录</h2>
             <button id="clear-records">清除今日记录</button>
             <div id="record-list" class="record-list">
-                <!-- 计时记录会显示在这里 -->
+                <!-- 计时记录显示 -->
             </div>
         </div>
     </div>
@@ -121,9 +132,9 @@
     <script>
         let timer;
         let seconds = 0;
-        let countdownSeconds = 0;
+        let countdownSeconds = 0; // 倒计时秒数
         let isCounting = false;
-        let isCountdown = false;
+        let isCountdown = false; // 标识是否是倒计时
 
         function formatTime(seconds) {
             let hrs = Math.floor(seconds / 3600);
@@ -138,6 +149,7 @@
                 timer = setInterval(() => {
                     seconds++;
                     document.getElementById('timer').innerText = formatTime(seconds);
+                    updateRecord(seconds);
                 }, 1000);
                 isCounting = true;
             }
@@ -156,6 +168,7 @@
                     timer = setInterval(() => {
                         countdownSeconds--;
                         document.getElementById('timer').innerText = formatTime(countdownSeconds);
+                        updateRecord(countdownSeconds);
                         if (countdownSeconds <= 0) {
                             clearInterval(timer);
                             alert('倒计时结束！');
@@ -181,57 +194,18 @@
             document.getElementById('timer').innerText = "00:00:00";
         }
 
-        function saveTask() {
-            const taskName = document.getElementById('task-name').value || "无标题任务";
-            const timeRecorded = formatTime(isCountdown ? countdownSeconds : seconds);
-            const date = new Date();
-            const dateString = date.toLocaleDateString();
-
-            const taskRecord = {
-                name: taskName,
-                time: timeRecorded,
-                date: dateString,
-            };
-
-            const savedRecords = JSON.parse(localStorage.getItem('timerRecords')) || {};
-            if (!savedRecords[dateString]) {
-                savedRecords[dateString] = [];
-            }
-            savedRecords[dateString].push(taskRecord);
-            localStorage.setItem('timerRecords', JSON.stringify(savedRecords));
-
-            displayRecords();
-        }
-
-        function displayRecords() {
-            const savedRecords = JSON.parse(localStorage.getItem('timerRecords')) || {};
-            const today = new Date().toLocaleDateString();
-            const records = savedRecords[today] || [];
-            const recordList = document.getElementById('record-list');
-            recordList.innerHTML = '';
-            records.forEach(record => {
-                const recordItem = document.createElement('div');
-                recordItem.classList.add('record-item');
-                recordItem.innerText = `${record.name}: ${record.time}`;
-                recordList.appendChild(recordItem);
-            });
-        }
-
-        function clearRecords() {
-            const today = new Date().toLocaleDateString();
-            const savedRecords = JSON.parse(localStorage.getItem('timerRecords')) || {};
-            delete savedRecords[today];
-            localStorage.setItem('timerRecords', JSON.stringify(savedRecords));
-            displayRecords();
+        function updateRecord(time) {
+            const taskName = document.getElementById('task-name').value || "未命名任务";
+            document.getElementById('record-list').innerHTML = `<div class="record-item">${taskName}: ${formatTime(time)}</div>`;
         }
 
         document.getElementById('start').addEventListener('click', startTimer);
         document.getElementById('start-countdown').addEventListener('click', startCountdown);
         document.getElementById('pause').addEventListener('click', pauseTimer);
         document.getElementById('reset').addEventListener('click', resetTimer);
-        document.getElementById('clear-records').addEventListener('click', clearRecords);
-
-        displayRecords();
+        document.getElementById('clear-records').addEventListener('click', () => {
+            document.getElementById('record-list').innerHTML = '';
+        });
     </script>
 </body>
 </html>
