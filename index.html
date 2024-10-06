@@ -41,9 +41,29 @@
             margin: 5px;
             font-size: 0.9rem;
         }
+        .input-group {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .input-group label {
+            margin: 0 5px;
+            font-size: 1rem;
+        }
         input[type="number"] {
             width: 40px;
             font-size: 1rem;
+            padding: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            text-align: center;
+            margin: 0 5px;
+        }
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #007BFF;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
         }
         .record-list {
             font-size: 0.9rem;
@@ -59,7 +79,7 @@
         <div class="timer-section">
             <h1>计时器</h1>
             <!-- 倒计时时间输入框 -->
-            <div>
+            <div class="input-group">
                 <label for="hours">小时</label>
                 <input type="number" id="hours" value="0" min="0">
                 <label for="minutes">分钟</label>
