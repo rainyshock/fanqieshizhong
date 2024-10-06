@@ -88,8 +88,7 @@
             <div class="controls">
                 <button id="start">开始正计时</button>
                 <button id="start-countdown">开始倒计时</button>
-                <button id="pause">暂停</button>
-                <button id="resume">继续</button> <!-- 新增的“继续”按钮 -->
+                <button id="pause">停止</button>
                 <button id="reset">重置</button>
             </div>
             
@@ -112,8 +111,8 @@
         let timer;
         let seconds = 0;
         let countdownSeconds = 0;
+        let inputCountdownSeconds = 0;
         let isCounting = false;
-        let isPaused = false; // 标识是否已暂停
         let isCountdown = false;
 
         function formatTime(seconds) {
@@ -135,13 +134,27 @@
         document.getElementById('minutes').addEventListener('input', updateCountdownDisplay);
         document.getElementById('seconds').addEventListener('input', updateCountdownDisplay);
 
+        function updateTaskRecord() {
+            const taskName = document.getElementById('task-name').value;
+            const date = new Date().toLocaleDateString();
+            const savedRecords = JSON.parse(localStorage.getItem('timerRecords')) || {};
+            const taskRecordIndex = savedRecords[date]?.findIndex(record => record.name === taskName);
+
+            if (taskRecordIndex !== -1) {
+                savedRecords[date][taskRecordIndex].time = formatTime(seconds);
+                localStorage.setItem('timerRecords', JSON.stringify(savedRecords));
+                displayRecords();
+            }
+        }
+
         function startTimer() {
-            if (!isCounting && !isPaused) {
+            if (!isCounting) {
                 isCountdown = false;
                 saveTask("正计时", formatTime(seconds));
                 timer = setInterval(() => {
                     seconds++;
                     document.getElementById('timer').innerText = formatTime(seconds);
+                    updateTaskRecord();
                 }, 1000);
                 isCounting = true;
             }
@@ -151,13 +164,14 @@
             const inputHours = parseInt(document.getElementById('hours').value) || 0;
             const inputMinutes = parseInt(document.getElementById('minutes').value) || 0;
             const inputSeconds = parseInt(document.getElementById('seconds').value) || 0;
-            countdownSeconds = inputHours * 3600 + inputMinutes * 60 + inputSeconds;
+            inputCountdownSeconds = inputHours * 3600 + inputMinutes * 60 + inputSeconds;
+            countdownSeconds = inputCountdownSeconds;
 
             if (countdownSeconds > 0) {
                 document.getElementById('timer').innerText = formatTime(countdownSeconds);
                 saveTask("倒计时", formatTime(countdownSeconds));
                 isCountdown = true;
-                if (!isCounting && !isPaused) {
+                if (!isCounting) {
                     timer = setInterval(() => {
                         countdownSeconds--;
                         document.getElementById('timer').innerText = formatTime(countdownSeconds);
@@ -176,26 +190,14 @@
         function pauseTimer() {
             clearInterval(timer);
             isCounting = false;
-            isPaused = true;
-        }
-
-        function resumeTimer() {
-            if (isPaused) {
-                isPaused = false;
-                if (isCountdown) {
-                    startCountdown();
-                } else {
-                    startTimer();
-                }
-            }
         }
 
         function resetTimer() {
             clearInterval(timer);
             isCounting = false;
-            isPaused = false;
             seconds = 0;
             countdownSeconds = 0;
+            inputCountdownSeconds = 0;
             document.getElementById('timer').innerText = "00:00:00";
         }
 
@@ -251,7 +253,6 @@
         document.getElementById('start').addEventListener('click', startTimer);
         document.getElementById('start-countdown').addEventListener('click', startCountdown);
         document.getElementById('pause').addEventListener('click', pauseTimer);
-        document.getElementById('resume').addEventListener('click', resumeTimer);
         document.getElementById('reset').addEventListener('click', resetTimer);
         document.getElementById('clear-records').addEventListener('click', clearRecords);
 
