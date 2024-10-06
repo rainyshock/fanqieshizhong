@@ -74,6 +74,7 @@
         let timer;
         let seconds = 0;
         let countdownSeconds = 0; // 倒计时秒数
+        let inputCountdownSeconds = 0; // 记录倒计时初始输入值
         let isCounting = false;
         let isCountdown = false; // 用于标识是否是倒计时
 
@@ -116,7 +117,8 @@
             const inputHours = parseInt(document.getElementById('hours').value) || 0;
             const inputMinutes = parseInt(document.getElementById('minutes').value) || 0;
             const inputSeconds = parseInt(document.getElementById('seconds').value) || 0;
-            countdownSeconds = inputHours * 3600 + inputMinutes * 60 + inputSeconds;
+            inputCountdownSeconds = inputHours * 3600 + inputMinutes * 60 + inputSeconds; // 保存初始倒计时
+            countdownSeconds = inputCountdownSeconds; // 设置当前倒计时秒数
             
             if (countdownSeconds > 0) {
                 document.getElementById('timer').innerText = formatTime(countdownSeconds);
@@ -149,6 +151,7 @@
             isCounting = false;
             seconds = 0;
             countdownSeconds = 0;
+            inputCountdownSeconds = 0; // 重置初始倒计时
             document.getElementById('timer').innerText = "00:00:00";
         }
 
@@ -160,8 +163,8 @@
                 return;
             }
 
-            // 这里要保存当前的时间，不论是正计时还是倒计时
-            const timeRecorded = formatTime(isCountdown ? countdownSeconds : seconds);
+            // 保存倒计时的初始时间
+            const timeRecorded = isCountdown ? formatTime(inputCountdownSeconds) : formatTime(seconds);
             const date = new Date();
             const dateString = date.toLocaleDateString();
 
