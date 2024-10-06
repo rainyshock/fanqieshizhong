@@ -14,7 +14,7 @@
             align-items: center;
             height: 100vh;
             margin: 0;
-            overflow: hidden; /* 禁用滚动条 */
+            overflow: hidden;
         }
         .container {
             display: flex;
@@ -27,58 +27,65 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
         .timer-section {
-            width: 250px; /* 减小宽度 */
+            width: 250px;
         }
         .record-section {
-            width: 200px; /* 减小宽度 */
+            width: 200px;
         }
         .timer {
             font-size: 2.5rem;
             margin: 15px 0;
         }
-        .controls button {
-            padding: 5px 10px;
-            margin: 5px;
-            font-size: 0.9rem;
-        }
         .input-group {
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-bottom: 10px;
+            gap: 10px;
+            margin-bottom: 15px;
         }
         .input-group label {
-            margin: 0 5px;
             font-size: 1rem;
         }
-        input[type="number"] {
-            width: 40px;
+        input[type="number"], input[type="text"] {
+            width: 50px;
+            padding: 8px;
             font-size: 1rem;
-            padding: 5px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
             text-align: center;
-            margin: 0 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
         }
-        input[type="number"]:focus {
+        input[type="number"]:focus, input[type="text"]:focus {
             outline: none;
             border-color: #007BFF;
             box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
         }
-        .record-list {
+        .controls button {
+            padding: 10px 20px;
+            margin: 5px;
             font-size: 0.9rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
         }
-        input[type="text"] {
-            width: 150px;
-            margin-top: 10px;
+        .controls button:hover {
+            background-color: #007BFF;
+            color: white;
+        }
+        .record-button {
+            margin-bottom: 15px;
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- 计时器部分 -->
         <div class="timer-section">
             <h1>计时器</h1>
-            <!-- 倒计时时间输入框 -->
+            <!-- 输入框 -->
             <div class="input-group">
                 <label for="hours">小时</label>
                 <input type="number" id="hours" value="0" min="0">
@@ -87,10 +94,8 @@
                 <label for="seconds">秒</label>
                 <input type="number" id="seconds" value="0" min="0" max="59">
             </div>
-            
             <!-- 显示计时器 -->
             <div id="timer" class="timer">00:00:00</div>
-            
             <!-- 控制按钮 -->
             <div class="controls">
                 <button id="start">开始正计时</button>
@@ -98,18 +103,18 @@
                 <button id="pause">停止</button>
                 <button id="reset">重置</button>
             </div>
-            
             <!-- 保存任务名称 -->
-            <div>
+            <div class="input-group">
                 <input type="text" id="task-name" placeholder="计时名称" />
             </div>
         </div>
-        
+
+        <!-- 记录部分 -->
         <div class="record-section">
             <h2>今日计时记录</h2>
-            <button id="clear-records">清除今日记录</button>
-            <div id="record-list" class="record-list">
-                <!-- 计时记录会显示在这里 -->
+            <button id="clear-records" class="record-button">清除今日记录</button>
+            <div id="record-list">
+                <!-- 记录将显示在这里 -->
             </div>
         </div>
     </div>
@@ -144,7 +149,7 @@
             const inputMinutes = parseInt(document.getElementById('minutes').value) || 0;
             const inputSeconds = parseInt(document.getElementById('seconds').value) || 0;
             countdownSeconds = inputHours * 3600 + inputMinutes * 60 + inputSeconds;
-            
+
             if (countdownSeconds > 0) {
                 document.getElementById('timer').innerText = formatTime(countdownSeconds);
                 isCountdown = true;
@@ -181,7 +186,6 @@
         document.getElementById('start-countdown').addEventListener('click', startCountdown);
         document.getElementById('pause').addEventListener('click', pauseTimer);
         document.getElementById('reset').addEventListener('click', resetTimer);
-
     </script>
 </body>
 </html>
