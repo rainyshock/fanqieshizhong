@@ -1,191 +1,35 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>计时器小组件</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            overflow: hidden;
-        }
-        .container {
-            display: flex;
-            gap: 20px;
-        }
-        .timer-section, .record-section {
-            background-color: #f3f3f3;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        .timer-section {
-            width: 250px;
-        }
-        .record-section {
-            width: 200px;
-        }
-        .timer {
-            font-size: 2.5rem;
-            margin: 15px 0;
-        }
-        .input-group {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        .input-group label {
-            font-size: 1rem;
-        }
-        input[type="number"], input[type="text"] {
-            width: 50px;
-            padding: 8px;
-            font-size: 1rem;
-            text-align: center;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-        }
-        input[type="number"]:focus, input[type="text"]:focus {
-            outline: none;
-            border-color: #007BFF;
-            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-        }
-        .controls button {
-            padding: 10px 20px;
-            margin: 5px;
-            font-size: 0.9rem;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            background-color: #fff;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        .controls button:hover {
-            background-color: #007BFF;
-            color: white;
-        }
-        .record-button {
-            margin-bottom: 15px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <!-- 计时器部分 -->
-        <div class="timer-section">
-            <h1>计时器</h1>
-            <!-- 输入框 -->
-            <div class="input-group">
-                <label for="hours">小时</label>
-                <input type="number" id="hours" value="0" min="0">
-                <label for="minutes">分钟</label>
-                <input type="number" id="minutes" value="0" min="0" max="59">
-                <label for="seconds">秒</label>
-                <input type="number" id="seconds" value="0" min="0" max="59">
-            </div>
-            <!-- 显示计时器 -->
-            <div id="timer" class="timer">00:00:00</div>
-            <!-- 控制按钮 -->
-            <div class="controls">
-                <button id="start">开始正计时</button>
-                <button id="start-countdown">开始倒计时</button>
-                <button id="pause">停止</button>
-                <button id="reset">重置</button>
-            </div>
-            <!-- 保存任务名称 -->
-            <div class="input-group">
-                <input type="text" id="task-name" placeholder="计时名称" />
-            </div>
-        </div>
+input[type="number"], input[type="text"] {
+    width: 50px;
+    padding: 8px;
+    font-size: 1rem;
+    text-align: center;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
 
-        <!-- 记录部分 -->
-        <div class="record-section">
-            <h2>今日计时记录</h2>
-            <button id="clear-records" class="record-button">清除今日记录</button>
-            <div id="record-list">
-                <!-- 记录将显示在这里 -->
-            </div>
-        </div>
-    </div>
+input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
 
-    <script>
-        let timer;
-        let seconds = 0;
-        let countdownSeconds = 0;
-        let isCounting = false;
-        let isCountdown = false;
+button {
+    padding: 10px 20px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #fff;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
 
-        function formatTime(seconds) {
-            let hrs = Math.floor(seconds / 3600);
-            let mins = Math.floor((seconds % 3600) / 60);
-            let secs = seconds % 60;
-            return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-        }
-
-        function startTimer() {
-            if (!isCounting) {
-                isCountdown = false;
-                timer = setInterval(() => {
-                    seconds++;
-                    document.getElementById('timer').innerText = formatTime(seconds);
-                }, 1000);
-                isCounting = true;
-            }
-        }
-
-        function startCountdown() {
-            const inputHours = parseInt(document.getElementById('hours').value) || 0;
-            const inputMinutes = parseInt(document.getElementById('minutes').value) || 0;
-            const inputSeconds = parseInt(document.getElementById('seconds').value) || 0;
-            countdownSeconds = inputHours * 3600 + inputMinutes * 60 + inputSeconds;
-
-            if (countdownSeconds > 0) {
-                document.getElementById('timer').innerText = formatTime(countdownSeconds);
-                isCountdown = true;
-                if (!isCounting) {
-                    timer = setInterval(() => {
-                        countdownSeconds--;
-                        document.getElementById('timer').innerText = formatTime(countdownSeconds);
-                        if (countdownSeconds <= 0) {
-                            clearInterval(timer);
-                            alert('倒计时结束！');
-                        }
-                    }, 1000);
-                    isCounting = true;
-                }
-            } else {
-                alert('请输入有效的倒计时时间');
-            }
-        }
-
-        function pauseTimer() {
-            clearInterval(timer);
-            isCounting = false;
-        }
-
-        function resetTimer() {
-            clearInterval(timer);
-            isCounting = false;
-            seconds = 0;
-            countdownSeconds = 0;
-            document.getElementById('timer').innerText = "00:00:00";
-        }
-
-        document.getElementById('start').addEventListener('click', startTimer);
-        document.getElementById('start-countdown').addEventListener('click', startCountdown);
-        document.getElementById('pause').addEventListener('click', pauseTimer);
-        document.getElementById('reset').addEventListener('click', resetTimer);
-    </script>
-</body>
-</html>
+button:hover {
+    background-color: #007BFF;
+    color: white;
+}
