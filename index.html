@@ -136,6 +136,16 @@
         let isCounting = false;
         let isCountdown = false; // 标识是否是倒计时
 
+        // 动态更新倒计时显示
+        function updateCountdownDisplay() {
+            const inputHours = parseInt(document.getElementById('hours').value) || 0;
+            const inputMinutes = parseInt(document.getElementById('minutes').value) || 0;
+            const inputSeconds = parseInt(document.getElementById('seconds').value) || 0;
+            countdownSeconds = inputHours * 3600 + inputMinutes * 60 + inputSeconds;
+            document.getElementById('timer').innerText = formatTime(countdownSeconds);
+        }
+
+        // 格式化时间
         function formatTime(seconds) {
             let hrs = Math.floor(seconds / 3600);
             let mins = Math.floor((seconds % 3600) / 60);
@@ -143,6 +153,7 @@
             return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
         }
 
+        // 开始正计时
         function startTimer() {
             if (!isCounting) {
                 isCountdown = false;
@@ -156,14 +167,10 @@
             }
         }
 
+        // 开始倒计时
         function startCountdown() {
-            const inputHours = parseInt(document.getElementById('hours').value) || 0;
-            const inputMinutes = parseInt(document.getElementById('minutes').value) || 0;
-            const inputSeconds = parseInt(document.getElementById('seconds').value) || 0;
-            countdownSeconds = inputHours * 3600 + inputMinutes * 60 + inputSeconds;
-
+            updateCountdownDisplay(); // 确保显示的是当前输入的时间
             if (countdownSeconds > 0) {
-                document.getElementById('timer').innerText = formatTime(countdownSeconds);
                 recordTime(countdownSeconds); // 记录初始倒计时时间
                 isCountdown = true;
                 if (!isCounting) {
@@ -182,11 +189,13 @@
             }
         }
 
+        // 暂停计时
         function pauseTimer() {
             clearInterval(timer);
             isCounting = false;
         }
 
+        // 重置计时
         function resetTimer() {
             clearInterval(timer);
             isCounting = false;
@@ -214,6 +223,11 @@
                 lastRecord.innerText = lastRecord.innerText.replace(/(\d{2}:\d{2}:\d{2})$/, formatTime(time));
             }
         }
+
+        // 输入框变化时更新倒计时显示
+        document.getElementById('hours').addEventListener('input', updateCountdownDisplay);
+        document.getElementById('minutes').addEventListener('input', updateCountdownDisplay);
+        document.getElementById('seconds').addEventListener('input', updateCountdownDisplay);
 
         document.getElementById('start').addEventListener('click', startTimer);
         document.getElementById('start-countdown').addEventListener('click', startCountdown);
