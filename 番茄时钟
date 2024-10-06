@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>计时器小组件</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        .timer {
+            font-size: 3rem;
+            margin: 20px 0;
+        }
+        .controls {
+            margin: 10px 0;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+        }
+        .record-list {
+            margin-top: 20px;
+        }
+        .record-item {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>计时器</h1>
+    <div id="timer" class="timer">00:00:00</div>
+    
+    <div class="controls">
+        <button id="start">开始</button>
+        <button id="pause">暂停</button>
+        <button id="reset">重置</button>
+    </div>
+    
+    <div>
+        <input type="text" id="task-name" placeholder="计时名称" />
+        <button id="save-task">保存记录</button>
+    </div>
+    
+    <div id="record-list" class="record-list">
+        <h2>今日计时记录</h2>
+        <!-- 计时记录会显示在这里 -->
+    </div>
+
+    <script>
+        let timer;
+        let seconds = 0;
+        let isCounting = false;
+
+        function formatTime(seconds) {
+            let hrs = Math.floor(seconds / 3600);
+            let mins = Math.floor((seconds % 3600) / 60);
+            let secs = seconds % 60;
+            return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+        function startTimer() {
+            if (!isCounting) {
+                timer = setInterval(() => {
+                    seconds++;
+                    document.getElementById('timer').innerText = formatTime(seconds);
+                }, 1000);
+                isCounting = true;
+            }
+        }
+
+        function pauseTimer() {
+            clearInterval(timer);
+            isCounting = false;
+        }
+
+        function resetTimer() {
+            clearInterval(timer);
+            isCounting = false;
+            seconds = 0;
+            document.getElementById('timer').innerText = "00:00:00";
+        }
+
+        function saveTask() {
+            const taskName = document.getElementById('task-name').value;
+            if (!taskName) {
+                alert('请输入计时名称');
+                return;
+            }
+
+            const timeRecorded = formatTime(seconds);
+            const date = new Date();
+            const dateString = date.toLocaleDateString();
+
+            const taskRecord = {
+                name: taskName,
+                time: timeRecorded,
+                date: dateString,
+            };
+
+            const savedRecords = JSON.parse(localStorage.getItem('timerRecords')) || {};
+            if (!savedRecords[dateString]) {
+                savedRecords[dateString] = [];
+            }
+            savedRecords[dateString].push(taskRecord);
+            localStorage.setItem('timerRecords', JSON.stringify(savedRecords));
+
+            displayRecords();
+        }
+
+        function displayRecords() {
+            const savedRecords = JSON.parse(localStorage.getItem('timerRecords')) || {};
+            const today = new Date().toLocaleDateString();
+            const records = savedRecords[today] || [];
+            const recordList = document.getElementById('record-list');
+            recordList.innerHTML = '<h2>今日计时记录</h2>';
+            records.forEach(record => {
+                const recordItem = document.createElement('div');
+                recordItem.classList.add('record-item');
+                recordItem.innerText = `${record.name}: ${record.time}`;
+                recordList.appendChild(recordItem);
+            });
+        }
+
+        document.getElementById('start').addEventListener('click', startTimer);
+        document.getElementById('pause').addEventListener('click', pauseTimer);
+        document.getElementById('reset').addEventListener('click', resetTimer);
+        document.getElementById('save-task').addEventListener('click', saveTask);
+
+        displayRecords();
+    </script>
+</body>
+</html>
