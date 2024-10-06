@@ -3,74 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>计时器</title>
+    <title>计时器小组件</title>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: Arial, sans-serif;
             text-align: center;
+            padding: 20px;
         }
-        .timer-display {
-            font-size: 4rem;
-            font-weight: bold;
+        .timer {
+            font-size: 3rem;
+            margin: 20px 0;
         }
-        .input-container {
-            margin-top: 20px;
-        }
-        input {
-            font-size: 1.5rem;
-            width: 60px;
-            text-align: center;
+        .controls {
+            margin: 10px 0;
         }
         button {
-            font-size: 1rem;
-            padding: 10px;
+            padding: 10px 20px;
             margin: 5px;
+        }
+        .record-list {
+            margin-top: 20px;
+        }
+        .record-item {
+            margin-bottom: 10px;
+        }
+        input[type="number"] {
+            width: 50px;
+            font-size: 1.2rem;
         }
     </style>
 </head>
 <body>
-
     <h1>计时器</h1>
-
-    <!-- 倒计时显示 -->
-    <div id="timer" class="timer-display">00:00:00</div>
-
-    <!-- 输入倒计时小时、分钟、秒 -->
-    <div class="input-container">
-        <input type="number" id="hours" placeholder="小时" min="0">
-        <input type="number" id="minutes" placeholder="分钟" min="0">
-        <input type="number" id="seconds" placeholder="秒" min="0">
-    </div>
-
-    <!-- 控制按钮 -->
+    
+    <!-- 倒计时时间输入框 -->
     <div>
-        <button id="startCountdown">开始倒计时</button>
+        <label for="hours">小时</label>
+        <input type="number" id="hours" value="0" min="0">
+        <label for="minutes">分钟</label>
+        <input type="number" id="minutes" value="0" min="0" max="59">
+        <label for="seconds">秒</label>
+        <input type="number" id="seconds" value="0" min="0" max="59">
+    </div>
+    
+    <!-- 显示计时器 -->
+    <div id="timer" class="timer">00:00:00</div>
+    
+    <!-- 控制按钮 -->
+    <div class="controls">
+        <button id="start">开始正计时</button>
+        <button id="start-countdown">开始倒计时</button>
+        <button id="pause">暂停</button>
         <button id="reset">重置</button>
+    </div>
+    
+    <!-- 保存任务名称 -->
+    <div>
+        <input type="text" id="task-name" placeholder="计时名称" />
+        <button id="save-task">保存记录</button>
+        <button id="clear-records">清除今日记录</button> <!-- 新增清除记录按钮 -->
+    </div>
+    
+    <!-- 显示记录 -->
+    <div id="record-list" class="record-list">
+        <h2>今日计时记录</h2>
+        <!-- 计时记录会显示在这里 -->
     </div>
 
     <script>
         let timer;
-        let countdownSeconds = 0;
+        let seconds = 0;
+        let countdownSeconds = 0; // 倒计时秒数
         let isCounting = false;
+        let isCountdown = false; // 用于标识是否是倒计时
 
+        // 格式化时间
         function formatTime(seconds) {
-            const hrs = Math.floor(seconds / 3600);
-            const mins = Math.floor((seconds % 3600) / 60);
-            const secs = seconds % 60;
-            return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            let hrs = Math.floor(seconds / 3600);
+            let mins = Math.floor((seconds % 3600) / 60);
+            let secs = seconds % 60;
+            return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
         }
 
-        // 开始倒计时按钮点击事件
-        document.getElementById('startCountdown').addEventListener('click', () => {
+        // 开始正计时
+        function startTimer() {
+            if (!isCounting) {
+                isCountdown = false;
+                timer = setInterval(() => {
+                    seconds++;
+                    document.getElementById('timer').innerText = formatTime(seconds);
+                }, 1000);
+                isCounting = true;
+            }
+        }
+
+        // 开始倒计时
+        function startCountdown() {
             const inputHours = parseInt(document.getElementById('hours').value) || 0;
             const inputMinutes = parseInt(document.getElementById('minutes').value) || 0;
             const inputSeconds = parseInt(document.getElementById('seconds').value) || 0;
-
             countdownSeconds = inputHours * 3600 + inputMinutes * 60 + inputSeconds;
-
-            // 检查倒计时是否大于0
+            
             if (countdownSeconds > 0) {
                 document.getElementById('timer').innerText = formatTime(countdownSeconds);
+                isCountdown = true;
                 if (!isCounting) {
                     timer = setInterval(() => {
                         countdownSeconds--;
@@ -85,19 +121,83 @@
             } else {
                 alert('请输入有效的倒计时时间');
             }
-        });
+        }
 
-        // 重置按钮点击事件
-        document.getElementById('reset').addEventListener('click', () => {
+        // 暂停计时
+        function pauseTimer() {
             clearInterval(timer);
-            countdownSeconds = 0;
             isCounting = false;
-            document.getElementById('timer').innerText = '00:00:00';
-            document.getElementById('hours').value = '';
-            document.getElementById('minutes').value = '';
-            document.getElementById('seconds').value = '';
-        });
-    </script>
+        }
 
+        // 重置计时
+        function resetTimer() {
+            clearInterval(timer);
+            isCounting = false;
+            seconds = 0;
+            countdownSeconds = 0;
+            document.getElementById('timer').innerText = "00:00:00";
+        }
+
+        // 保存计时记录
+        function saveTask() {
+            const taskName = document.getElementById('task-name').value;
+            if (!taskName) {
+                alert('请输入计时名称');
+                return;
+            }
+
+            const timeRecorded = formatTime(isCountdown ? countdownSeconds : seconds);
+            const date = new Date();
+            const dateString = date.toLocaleDateString();
+
+            const taskRecord = {
+                name: taskName,
+                time: timeRecorded,
+                date: dateString,
+            };
+
+            const savedRecords = JSON.parse(localStorage.getItem('timerRecords')) || {};
+            if (!savedRecords[dateString]) {
+                savedRecords[dateString] = [];
+            }
+            savedRecords[dateString].push(taskRecord);
+            localStorage.setItem('timerRecords', JSON.stringify(savedRecords));
+
+            displayRecords();
+        }
+
+        // 显示记录
+        function displayRecords() {
+            const savedRecords = JSON.parse(localStorage.getItem('timerRecords')) || {};
+            const today = new Date().toLocaleDateString();
+            const records = savedRecords[today] || [];
+            const recordList = document.getElementById('record-list');
+            recordList.innerHTML = '<h2>今日计时记录</h2>';
+            records.forEach(record => {
+                const recordItem = document.createElement('div');
+                recordItem.classList.add('record-item');
+                recordItem.innerText = `${record.name}: ${record.time}`;
+                recordList.appendChild(recordItem);
+            });
+        }
+
+        // 清除今日的计时记录
+        function clearRecords() {
+            const today = new Date().toLocaleDateString();
+            const savedRecords = JSON.parse(localStorage.getItem('timerRecords')) || {};
+            delete savedRecords[today];
+            localStorage.setItem('timerRecords', JSON.stringify(savedRecords));
+            displayRecords();
+        }
+
+        document.getElementById('start').addEventListener('click', startTimer);
+        document.getElementById('start-countdown').addEventListener('click', startCountdown);
+        document.getElementById('pause').addEventListener('click', pauseTimer);
+        document.getElementById('reset').addEventListener('click', resetTimer);
+        document.getElementById('save-task').addEventListener('click', saveTask);
+        document.getElementById('clear-records').addEventListener('click', clearRecords);
+
+        displayRecords();
+    </script>
 </body>
 </html>
