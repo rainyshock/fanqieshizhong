@@ -146,7 +146,8 @@
                 return;
             }
 
-            const timeRecorded = formatTime(isCountdown ? countdownSeconds : seconds);
+            // 判断是正计时还是倒计时，并保存对应的时间
+            const timeRecorded = isCountdown ? formatTime(countdownSeconds) : formatTime(seconds);
             const date = new Date();
             const dateString = date.toLocaleDateString();
 
@@ -154,6 +155,7 @@
                 name: taskName,
                 time: timeRecorded,
                 date: dateString,
+                type: isCountdown ? "倒计时" : "正计时" // 记录是正计时还是倒计时
             };
 
             const savedRecords = JSON.parse(localStorage.getItem('timerRecords')) || {};
@@ -176,7 +178,7 @@
             records.forEach(record => {
                 const recordItem = document.createElement('div');
                 recordItem.classList.add('record-item');
-                recordItem.innerText = `${record.name}: ${record.time}`;
+                recordItem.innerText = `${record.name} (${record.type}): ${record.time}`;
                 recordList.appendChild(recordItem);
             });
         }
